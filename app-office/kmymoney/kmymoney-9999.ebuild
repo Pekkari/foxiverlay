@@ -27,6 +27,7 @@ COMMON_DEPEND="
 	dev-libs/gmp:0=
 	dev-libs/libgpg-error
 	x11-misc/shared-mime-info
+	kde-frameworks/kdewebkit
 	calendar? ( dev-libs/libical:= )
 	hbci? (
 		>=net-libs/aqbanking-5.5.1
