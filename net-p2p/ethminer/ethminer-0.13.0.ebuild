@@ -25,7 +25,7 @@ SLOT="0"
 IUSE="cuda +opencl +stratum"
 
 DEPEND="
-	dev-cpp/libjson-rpc-cpp[http-client,tcp-socket-server]
+	dev-cpp/libjson-rpc-cpp[http-client]
 	dev-libs/boost
 	dev-libs/jsoncpp
 	cuda? ( dev-util/nvidia-cuda-toolkit )
