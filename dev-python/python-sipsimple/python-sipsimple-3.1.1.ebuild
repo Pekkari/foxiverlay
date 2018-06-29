@@ -40,7 +40,7 @@ RDEPEND="${CDEPEND}
 	dev-python/lxml[${PYTHON_USEDEP}]
 	>=dev-python/python-msrplib-0.19.0[${PYTHON_USEDEP}]
 	dev-python/python-xcaplib[${PYTHON_USEDEP}]
-	dev-python/twisted-core[${PYTHON_USEDEP}]
+	dev-python/twisted[${PYTHON_USEDEP}]
 	dev-python/zope-interface[${PYTHON_USEDEP}]
 "
 DEPEND="${CDEPEND}

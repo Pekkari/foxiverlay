@@ -26,7 +26,7 @@ RDEPEND="${CDEPEND}
 	dev-python/python-cjson[${PYTHON_USEDEP}]
 	dev-python/python-eventlib[${PYTHON_USEDEP}]
 	dev-python/PyQt5[webkit,${PYTHON_USEDEP}]
-	dev-python/twisted-core[${PYTHON_USEDEP}]
+	dev-python/twisted[${PYTHON_USEDEP}]
 	>=dev-python/python-sipsimple-3.1.0[${PYTHON_USEDEP}]
 	dev-python/zope-interface[${PYTHON_USEDEP}]
 	dev-python/google-api-python-client[${PYTHON_USEDEP}]
