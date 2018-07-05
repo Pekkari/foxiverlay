@@ -16,5 +16,6 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="app-arch/unzip
-		dev-python/setuptools[${PYTHON_USEDEP}]"
+		dev-python/setuptools[${PYTHON_USEDEP}]
+		dev-libs/hidapi"
 RDEPEND=""
