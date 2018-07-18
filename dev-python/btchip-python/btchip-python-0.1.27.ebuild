@@ -17,5 +17,5 @@ IUSE=""
 
 DEPEND="app-arch/unzip
 		dev-python/setuptools[${PYTHON_USEDEP}]
-		dev-libs/hidapi"
+		dev-python/cython-hidapi"
 RDEPEND=""

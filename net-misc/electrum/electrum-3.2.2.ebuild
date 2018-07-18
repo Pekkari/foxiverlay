@@ -66,7 +66,6 @@ RDEPEND="${PYTHON_DEPS}
 	)
 	ledger? (
 		dev-libs/libsecp256k1
-		dev-python/websocket-client[${PYTHON_USEDEP}]
 		dev-python/btchip-python[${PYTHON_USEDEP}]
 	)
 	ncurses? ( dev-lang/python )
