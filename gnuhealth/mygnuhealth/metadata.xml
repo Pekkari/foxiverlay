@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>koalinux@gmail.com</email>
+    <description>JosÃ Pekkarinen</description>
+  </maintainer>
+  <longdescription>
+	MyGNUHealth is the GNUHealth Personal Health Record application for desktop
+	and mobile devices that integrates with the GNU Health Federation.
+  </longdescription>
+</pkgmetadata>
