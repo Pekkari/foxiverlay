@@ -1,0 +1,38 @@
+policy_module(sddm, 1.0)
+
+gen_require(`
+  type xdm_t;
+  type xdg_data_t;
+  type xdg_config_t;
+  type xdm_tmpfs_t;
+  type staff_t;
+  type user_runtime_t;
+  type user_tty_device_t;
+  type tty_device_t;
+  type xkb_var_lib_t;
+  type var_log_t;
+  type usr_t;
+  type accountsd_var_lib_t;
+  type boolean_t;
+')
+
+#============= xdm_t ==============
+allow xdm_t user_tty_device_t:chr_file { relabelfrom relabelto };
+allow xdm_t tty_device_t:chr_file { relabelfrom relabelto };
+allow xdm_t xkb_var_lib_t:dir { search getattr remove_name add_name create write };
+allow xdm_t xkb_var_lib_t:file { getattr map create rename lock open read write };
+allow xdm_t var_log_t:file { getattr append };
+allow xdm_t usr_t:dir { watch };
+allow xdm_t usr_t:file { execute execute_no_trans };
+allow xdm_t accountsd_var_lib_t:dir { search };
+allow xdm_t boolean_t:file { open read };
+allow xdm_t xdm_t:process { setcap execmem };
+allow xdm_t xdm_tmpfs_t:file { execmod execute };
+allow xdm_t xdg_data_t:dir { search getattr add_name write };
+allow xdm_t xdg_data_t:file { getattr create open read write };
+allow xdm_t user_runtime_t:sock_file { create };
+allow xdm_t xdg_config_t:dir { search };
+allow xdm_t xdm_t:capability { net_admin };
+
+#============= staff_t ==============
+allow staff_t usr_t:file { entrypoint };
