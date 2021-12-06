@@ -1,0 +1,9 @@
+policy_module(qtquickcontrols2, 1.0)
+
+gen_require(`
+  type xdm_t;
+  type xkb_var_lib_t;
+')
+
+#============= xdm_t ==============
+allow xdm_t xkb_var_lib_t:file { link };
