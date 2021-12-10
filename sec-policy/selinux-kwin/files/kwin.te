@@ -1,0 +1,9 @@
+policy_module(kwin, 1.0)
+
+gen_require(`
+  type staff_t;
+  type xdm_tmp_t;
+')
+
+#============= staff_t ==============
+allow staff_t xdm_tmp_t:sock_file { unlink };
