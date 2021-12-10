@@ -1,0 +1,9 @@
+policy_module(xauth, 1.0)
+
+gen_require(`
+  type xdm_t;
+  type xauth_exec_t;
+')
+
+#============= xdm_t ==============
+allow xdm_t xauth_exec_t:file { getattr map execute execute_no_trans open read };
