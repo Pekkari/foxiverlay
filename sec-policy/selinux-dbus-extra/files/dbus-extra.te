@@ -1,0 +1,19 @@
+policy_module(dbus-extra, 1.0)
+
+gen_require(`
+  type xdm_t;
+  type security_t;
+  type dbusd_etc_t;
+  type staff_dbusd_t;
+  type xdg_data_t;
+  type proc_t;
+')
+
+#============= xdm_t ==============
+allow xdm_t security_t:file { map };
+allow xdm_t dbusd_etc_t:dir { watch };
+
+#============= staff_dbusd_t ==============
+allow staff_dbusd_t security_t:file { map };
+allow staff_dbusd_t xdg_data_t:file { write };
+allow staff_dbusd_t proc_t:filesystem { getattr };
