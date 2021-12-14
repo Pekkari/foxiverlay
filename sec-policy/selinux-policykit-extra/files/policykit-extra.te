@@ -1,0 +1,13 @@
+policy_module(policykit-extra, 1.0)
+
+gen_require(`
+  type policykit_t;
+  type systemd_logind_runtime_t;
+  type systemd_sessions_runtime_t;
+  type systemd_machined_runtime_t;
+')
+
+#============= policykit_t ==============
+allow policykit_t systemd_logind_runtime_t:dir { watch };
+allow policykit_t systemd_sessions_runtime_t:dir { watch };
+allow policykit_t systemd_machined_runtime_t:dir { watch };
