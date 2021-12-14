@@ -1,0 +1,17 @@
+policy_module(xserver-extra, 1.0)
+
+gen_require(`
+  type xdm_t;
+  type staff_t;
+  type xserver_t;
+')
+
+#============= xdm_t ==============
+allow xdm_t xdm_t:process { execmem };
+
+#============= xserver_t ==============
+allow xserver_t xserver_t:process { execmem };
+allow xserver_t xserver_t:capability { dac_read_search };
+
+#============= staff_t ==============
+allow staff_t xdm_t:unix_stream_socket { accept read write };
