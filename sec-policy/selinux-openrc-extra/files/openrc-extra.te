@@ -1,0 +1,9 @@
+policy_module(openrc-extra, 1.0)
+
+gen_require(`
+  type initrc_t;
+  type nsfs_t;
+')
+
+#============= initrc_t ==============
+allow initrc_t nsfs_t:file { getattr };
