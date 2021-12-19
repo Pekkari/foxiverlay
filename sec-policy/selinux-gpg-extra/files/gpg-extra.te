@@ -1,0 +1,16 @@
+policy_module(gpg-extra, 1.0)
+
+gen_require(`
+  type staff_t;
+  type user_tmp_t;
+  type gpg_agent_t;
+  type sysctl_crypto_t;
+')
+
+#============= staff_t ==============
+allow staff_t sysctl_crypto_t:dir { search };
+allow staff_t sysctl_crypto_t:file { getattr open read };
+
+#============= gpg_agent_t ==============
+allow gpg_agent_t user_tmp_t:dir { getattr add_name search open write };
+allow gpg_agent_t user_tmp_t:sock_file { create };
