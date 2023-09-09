@@ -37,6 +37,8 @@ src_configure() {
 	local emesonargs=(
 		-Ddefault_library=$(usex static-libs both shared)
 	)
+
+	emesonargs+=(-Dvideo=true)
 	if use vulkan; then
 		emesonargs+=(-Dvenus-experimental=true)
 	fi
