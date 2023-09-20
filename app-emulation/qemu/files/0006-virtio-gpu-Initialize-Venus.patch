@@ -1,0 +1,64 @@
+From ed1c9874c2b999f00fadea20000b5ee6193c6eef Mon Sep 17 00:00:00 2001
+From: Antonio Caggiano <antonio.caggiano@collabora.com>
+Date: Tue, 19 Sep 2023 19:29:42 +0300
+Subject: [PATCH 6/8] virtio-gpu: Initialize Venus
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Enable VirGL unstable APIs and request Venus when initializing VirGL.
+
+v2: Use compile argument with declare_dependency
+
+Signed-off-by: José Pekkarinen <jose.pekkarinen@foxhound.fi>
+Signed-off-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+---
+ hw/display/virtio-gpu-virgl.c | 4 +++-
+ meson.build                   | 8 +++++---
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
+index 21459bc182..9db456102b 100644
+--- a/hw/display/virtio-gpu-virgl.c
++++ b/hw/display/virtio-gpu-virgl.c
+@@ -639,7 +639,9 @@ void virtio_gpu_virgl_reset(VirtIOGPU *g)
+ int virtio_gpu_virgl_init(VirtIOGPU *g)
+ {
+     int ret;
++#ifdef VIRGL_RENDERER_D3D11_SHARE_TEXTURE
+     uint32_t flags = 0;
++#endif
+ 
+ #if VIRGL_RENDERER_CALLBACKS_VERSION >= 4
+     if (qemu_egl_display) {
+@@ -653,7 +655,7 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
+     }
+ #endif
+ 
+-    ret = virgl_renderer_init(g, flags, &virtio_gpu_3d_cbs);
++    ret = virgl_renderer_init(g, VIRGL_RENDERER_VENUS, &virtio_gpu_3d_cbs);
+     if (ret != 0) {
+         error_report("virgl could not be initialized: %d", ret);
+         return ret;
+diff --git a/meson.build b/meson.build
+index f5a9ec7cfc..f8365771d2 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1059,9 +1059,11 @@ virgl = not_found
+ 
+ have_vhost_user_gpu = have_tools and targetos == 'linux' and pixman.found()
+ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
+-  virgl = dependency('virglrenderer', version: '>=0.9.0',
+-                     method: 'pkg-config',
+-                     required: get_option('virglrenderer'))
++  virglrenderer = dependency('virglrenderer', version: '>=0.9.0',
++                             method: 'pkg-config',
++                             required: get_option('virglrenderer'))
++  virgl = declare_dependency(compile_args: '-DVIRGL_RENDERER_UNSTABLE_APIS',
++                             dependencies: virglrenderer)
+   if virgl.found()
+     config_host_data.set('HAVE_VIRGL_D3D_INFO_EXT',
+                          cc.has_member('struct virgl_renderer_resource_info_ext', 'd3d_tex2d',
+-- 
+2.41.0
+
