@@ -1,0 +1,252 @@
+From 4a2ea74169131c6e37326ac31908d04e67d621b7 Mon Sep 17 00:00:00 2001
+From: Antonio Caggiano <antonio.caggiano@collabora.com>
+Date: Thu, 21 Sep 2023 09:44:06 +0300
+Subject: [PATCH 2/2] vrend: Create resource from memory
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add a function which creates a vrend resource by importing memory from
+an external virgl resource.
+
+Signed-off-by: José Pekkarinen <jose.pekkarinen@foxhound.fi>
+Signed-off-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+---
+ src/vrend_renderer.c | 141 +++++++++++++++++++++++++++++++++++++++++--
+ src/vrend_renderer.h |   5 ++
+ 2 files changed, 141 insertions(+), 5 deletions(-)
+
+diff --git a/src/vrend_renderer.c b/src/vrend_renderer.c
+index 4b7ee369..86182dae 100644
+--- a/src/vrend_renderer.c
++++ b/src/vrend_renderer.c
+@@ -57,6 +57,7 @@
+ #include "virglrenderer.h"
+ #include "virglrenderer_hw.h"
+ #include "virgl_protocol.h"
++#include "virgl_context.h"
+ 
+ #include "tgsi/tgsi_text.h"
+ 
+@@ -2200,6 +2201,81 @@ void vrend_sync_make_current(virgl_gl_context gl_cxt) {
+    glDeleteSync(sync);
+ }
+ 
++struct lookup_callback_data {
++   // Resource id to look for
++   uint32_t res_id;
++
++   // Context to skip
++   uint32_t skip_ctx;
++
++   // Value found stored here
++   struct virgl_resource *res;
++   uint32_t width;
++   uint32_t height;
++};
++
++static bool lookup_callback(struct virgl_context *ctx, void *data)
++{
++   struct lookup_callback_data *lookup_data = (struct lookup_callback_data *)data;
++   if (ctx->ctx_id == lookup_data->skip_ctx)
++      return true;
++
++   lookup_data->res = ctx->resource_lookup_with_dims(ctx, lookup_data->res_id, &lookup_data->width, &lookup_data->height);
++   // Stops when res is actually valid
++   return lookup_data->res == NULL;
++}
++
++/* Look for a vrend resource in ctx, if not found looks for that in all other contexts */
++static struct vrend_resource *
++vrend_resource_lookup_wide(struct vrend_context *ctx, uint32_t res_id)
++{
++   struct vrend_resource *res = vrend_ctx_resource_lookup(ctx->res_hash, res_id);
++   if (res)
++      return res;
++
++   // Look for imported resources
++   LIST_FOR_EACH_ENTRY(res, &ctx->vrend_resources, head) {
++      if (res->imported_id == res_id)
++         return res;
++   }
++   res = NULL;
++
++   struct lookup_callback_data data = {
++      .res_id = res_id,
++      .skip_ctx = ctx->ctx_id,
++      .res = NULL,
++   };
++
++   struct virgl_context_foreach_args args = {
++      .callback = lookup_callback,
++      .data = &data,
++   };
++
++   virgl_context_foreach(&args);
++
++   if (!data.res)
++      return NULL;
++
++   struct vrend_renderer_resource_create_args cargs = {
++      .width = data.width,
++      .height = data.height,
++      .depth = 1,
++      .target = PIPE_TEXTURE_2D,
++      .nr_samples = 0,
++      .bind = VIRGL_RES_BIND_SAMPLER_VIEW,
++      .format = VIRGL_FORMAT_R8G8B8A8_SRGB,
++   };
++   res = vrend_renderer_resource_create_from_mem(&cargs, data.res);
++
++   if (res) {
++      // TODO Store this imported resource in a different list?
++      res->imported_id = res_id;
++      list_addtail(&res->head, &ctx->vrend_resources);
++   }
++
++   return res;
++}
++
+ int vrend_create_surface(struct vrend_context *ctx,
+                          uint32_t handle,
+                          uint32_t res_handle, uint32_t format,
+@@ -2214,12 +2290,17 @@ int vrend_create_surface(struct vrend_context *ctx,
+       return EINVAL;
+    }
+ 
+-   res = vrend_renderer_ctx_res_lookup(ctx, res_handle);
++   res = vrend_resource_lookup_wide(ctx, res_handle);
+    if (!res) {
+       vrend_report_context_error(ctx, VIRGL_ERROR_CTX_ILLEGAL_RESOURCE, res_handle);
+       return EINVAL;
+    }
+ 
++   if (res->imported_id == res_handle) {
++      // Swapchain imported from Vulkan?
++      format = VIRGL_FORMAT_B8G8R8A8_SRGB;
++   }
++
+    surf = CALLOC_STRUCT(vrend_surface);
+    if (!surf)
+       return ENOMEM;
+@@ -2516,12 +2597,18 @@ int vrend_create_sampler_view(struct vrend_context *ctx,
+    int ret_handle;
+    uint8_t swizzle[4];
+ 
+-   res = vrend_renderer_ctx_res_lookup(ctx, res_handle);
++   res = vrend_resource_lookup_wide(ctx, res_handle);
+    if (!res) {
+       vrend_report_context_error(ctx, VIRGL_ERROR_CTX_ILLEGAL_RESOURCE, res_handle);
+       return EINVAL;
+    }
+ 
++   if (res->imported_id == res_handle) {
++      // Swapchain imported from Vulkan?
++      format = VIRGL_FORMAT_B8G8R8A8_SRGB;
++   }
++
++
+    view = CALLOC_STRUCT(vrend_sampler_view);
+    if (!view)
+       return ENOMEM;
+@@ -7034,13 +7121,13 @@ static void vrend_pipe_resource_detach_iov(struct pipe_resource *pres,
+    res->num_iovs = 0;
+ }
+ 
+-static enum virgl_resource_fd_type vrend_pipe_resource_export_fd(UNUSED struct pipe_resource *pres,
+-                                                                 UNUSED int *fd,
++static enum virgl_resource_fd_type vrend_pipe_resource_export_fd(struct pipe_resource *pres,
++                                                                 int *fd,
+                                                                  UNUSED void *data)
+ {
+-#ifdef ENABLE_MINIGBM_ALLOCATION
+    struct vrend_resource *res = (struct vrend_resource *)pres;
+ 
++#ifdef ENABLE_MINIGBM_ALLOCATION
+    if (res->storage_bits & VREND_STORAGE_GBM_BUFFER) {
+       int ret = virgl_gbm_export_fd(gbm->device,
+                                     gbm_bo_get_handle(res->gbm_bo).u32, fd);
+@@ -7049,6 +7136,13 @@ static enum virgl_resource_fd_type vrend_pipe_resource_export_fd(UNUSED struct p
+    }
+ #endif
+ 
++   // Check whether this is an imported resource
++   if (res->imported_id) {
++      // Find that resource and export that.
++      struct virgl_resource *vres = virgl_resource_lookup(res->imported_id);
++      return virgl_resource_export_fd(vres, fd);
++   }
++
+    return VIRGL_RESOURCE_FD_INVALID;
+ }
+ 
+@@ -8122,6 +8216,43 @@ vrend_resource_create(const struct vrend_renderer_resource_create_args *args)
+    return gr;
+ }
+ 
++struct vrend_resource *
++vrend_renderer_resource_create_from_mem(const struct vrend_renderer_resource_create_args *args,
++                                        struct virgl_resource *res)
++{
++   struct vrend_resource *gr = vrend_resource_create(args);
++   if (!gr)
++      return NULL;
++
++   int fd = -1;
++   UNUSED enum virgl_resource_fd_type fd_type = virgl_resource_export_fd(res, &fd);
++   assert(fd_type != VIRGL_RESOURCE_FD_INVALID);
++
++   // Create a GL memory object importing memory from a FD
++   GLuint mem_object;
++   glCreateMemoryObjectsEXT(1, &mem_object);
++   GLint params = GL_TRUE;
++   glMemoryObjectParameterivEXT(mem_object, GL_DEDICATED_MEMORY_OBJECT_EXT, &params);
++   glImportMemoryFdEXT(mem_object, res->map_size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, fd);
++
++   struct pipe_resource *pr = &gr->base;
++   gr->target = tgsitargettogltarget(pr->target, pr->nr_samples);
++   gr->memobj = mem_object;
++   gr->storage_bits |= VREND_STORAGE_GL_TEXTURE | VREND_STORAGE_GL_MEMOBJ;
++
++   // Create a GL texture which uses that memory as storage
++   glGenTextures(1, &gr->id);
++   glBindTexture(gr->target, gr->id);
++   GLsizei width = (GLsizei)args->width;
++   GLsizei height = (GLsizei)args->height;
++   glTexParameteri(gr->target, GL_TEXTURE_TILING_EXT, GL_LINEAR_TILING_EXT);
++   glTexStorageMem2DEXT(gr->target, 1, GL_SRGB8_ALPHA8, width, height, mem_object, 0);
++
++   glBindTexture(gr->target, 0);
++
++   return gr;
++}
++
+ struct pipe_resource *
+ vrend_renderer_resource_create(const struct vrend_renderer_resource_create_args *args,
+                                void *image_oes)
+diff --git a/src/vrend_renderer.h b/src/vrend_renderer.h
+index 53d9a4b7..59868162 100644
+--- a/src/vrend_renderer.h
++++ b/src/vrend_renderer.h
+@@ -95,6 +95,7 @@ struct vrend_resource {
+ 
+    uint32_t blob_id;
+    struct list_head head;
++   uint32_t imported_id;
+ };
+ 
+ #define VIRGL_TEXTURE_NEED_SWIZZLE        (1 << 0)
+@@ -541,6 +542,10 @@ int
+ vrend_renderer_pipe_resource_create(struct vrend_context *ctx, uint32_t blob_id,
+                                     const struct vrend_renderer_resource_create_args *args);
+ 
++struct vrend_resource *
++vrend_renderer_resource_create_from_mem(const struct vrend_renderer_resource_create_args *args,
++                                        struct virgl_resource *res);
++
+ struct pipe_resource *vrend_get_blob_pipe(struct vrend_context *ctx, uint64_t blob_id);
+ 
+ int
+-- 
+2.41.0
+
