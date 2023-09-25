@@ -313,14 +313,20 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-	"${FILESDIR}"/0001-virtio-gpu-CONTEXT_INIT-feature.patch
-	"${FILESDIR}"/0002-virtio-gpu-hostmem.patch
-	"${FILESDIR}"/0003-virtio-Add-shared-memory-capability.patch
-	"${FILESDIR}"/0004-virtio-gpu-Resource-UUID.patch
-	"${FILESDIR}"/0005-virtio-gpu-Support-Venus-capset.patch
-	"${FILESDIR}"/0006-virtio-gpu-Initialize-Venus.patch
-	"${FILESDIR}"/0007-virtio-gpu-Handle-resource-blob-commands.patch
-	"${FILESDIR}"/0008-hack-Do-not-check-resource-in-assign-UUID.patch
+	"${FILESDIR}"/0001-Pending-linux-headers-Update-to-kernel-mainline-comm.patch
+	"${FILESDIR}"/0002-virtio-Add-shared-memory-capability.patch
+	"${FILESDIR}"/0003-virtio-gpu-CONTEXT_INIT-feature.patch
+	"${FILESDIR}"/0004-virtio-gpu-hostmem.patch
+	"${FILESDIR}"/0005-virtio-gpu-blob-prep.patch
+	"${FILESDIR}"/0006-virtio-gpu-Configure-context-init-for-virglrenderer.patch
+	"${FILESDIR}"/0007-virtio-gpu-Support-context-init-feature-with-virglre.patch
+	"${FILESDIR}"/0008-softmmu-memory-enable-automatic-deallocation-of-memo.patch
+	"${FILESDIR}"/0009-virtio-gpu-Don-t-require-udmabuf-when-blobs-and-virg.patch
+	"${FILESDIR}"/0010-virtio-gpu-Handle-resource-blob-commands.patch
+	"${FILESDIR}"/0011-virtio-gpu-Resource-UUID.patch
+	"${FILESDIR}"/0012-virtio-gpu-Support-Venus-capset.patch
+	"${FILESDIR}"/0013-virtio-gpu-Initialize-Venus.patch
+	"${FILESDIR}"/0014-virtio-gpu-Enable-virglrenderer-render-server-flag-f.patch
 )
 
 QA_PREBUILT="

@@ -1,0 +1,31 @@
+From 32cc954ef01d884b7d668a59623208a29a8c1d60 Mon Sep 17 00:00:00 2001
+From: Huang Rui <ray.huang@amd.com>
+Date: Sun, 27 Aug 2023 19:36:02 +0800
+Subject: [PATCH 06/14] virtio-gpu: Configure context init for virglrenderer
+
+Configure context init feature flag for virglrenderer.
+
+Originally-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+---
+ meson.build | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index 5150a74831..64deffb1d1 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1060,6 +1060,10 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
+                                        prefix: '#include <virglrenderer.h>',
+                                        dependencies: virgl))
+   endif
++  config_host_data.set('HAVE_VIRGL_CONTEXT_INIT',
++                       cc.has_function('virgl_renderer_context_create_with_flags',
++                                       prefix: '#include <virglrenderer.h>',
++                                       dependencies: virgl))
+ endif
+ blkio = not_found
+ if not get_option('blkio').auto() or have_block
+-- 
+2.41.0
+

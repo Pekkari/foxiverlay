@@ -1,0 +1,38 @@
+From c634359b8f033b6303d697799ddde699a50d9ab4 Mon Sep 17 00:00:00 2001
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Date: Thu, 29 Sep 2022 20:56:03 +0300
+Subject: [PATCH 09/14] virtio-gpu: Don't require udmabuf when blobs and virgl
+ are enabled
+
+The udmabuf usage is mandatory when virgl is disabled and blobs feature
+enabled in the Qemu machine configuration. If virgl and blobs are enabled,
+then udmabuf requirement is optional. Since udmabuf isn't widely supported
+by a popular Linux distros today, let's relax the udmabuf requirement for
+blobs=on,virgl=on. Now, a full-featured virtio-gpu acceleration is
+available to Qemu users without a need to have udmabuf available in the
+system.
+
+Reviewed-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+---
+ hw/display/virtio-gpu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
+index 6ff2c8e92d..29ab5e8261 100644
+--- a/hw/display/virtio-gpu.c
++++ b/hw/display/virtio-gpu.c
+@@ -1363,7 +1363,8 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
+     VirtIOGPU *g = VIRTIO_GPU(qdev);
+ 
+     if (virtio_gpu_blob_enabled(g->parent_obj.conf)) {
+-        if (!virtio_gpu_have_udmabuf()) {
++        if (!virtio_gpu_virgl_enabled(g->parent_obj.conf) &&
++            !virtio_gpu_have_udmabuf()) {
+             error_setg(errp, "cannot enable blob resources without udmabuf");
+             return;
+         }
+-- 
+2.41.0
+

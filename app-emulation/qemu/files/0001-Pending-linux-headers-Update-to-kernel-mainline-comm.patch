@@ -1,0 +1,29 @@
+From 4ae9d078f9242890769c98162caf32f95df42529 Mon Sep 17 00:00:00 2001
+From: Huang Rui <ray.huang@amd.com>
+Date: Fri, 15 Sep 2023 17:47:29 +0800
+Subject: [PATCH 01/14] [Pending] linux-headers: Update to kernel mainline
+ commit
+
+Waiting for kernel patch to update venus macro is merged into mainline
+
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+---
+ include/standard-headers/linux/virtio_gpu.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/standard-headers/linux/virtio_gpu.h b/include/standard-headers/linux/virtio_gpu.h
+index 2da48d3d4c..2db643ed8f 100644
+--- a/include/standard-headers/linux/virtio_gpu.h
++++ b/include/standard-headers/linux/virtio_gpu.h
+@@ -309,6 +309,8 @@ struct virtio_gpu_cmd_submit {
+ 
+ #define VIRTIO_GPU_CAPSET_VIRGL 1
+ #define VIRTIO_GPU_CAPSET_VIRGL2 2
++/* 3 is reserved for gfxstream */
++#define VIRTIO_GPU_CAPSET_VENUS 4
+ 
+ /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
+ struct virtio_gpu_get_capset_info {
+-- 
+2.41.0
+

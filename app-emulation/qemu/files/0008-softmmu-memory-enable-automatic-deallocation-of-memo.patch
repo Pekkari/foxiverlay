@@ -1,0 +1,57 @@
+From 2a23ede0043f51ecf8c7ef292a011dd8b51553d6 Mon Sep 17 00:00:00 2001
+From: Xenia Ragiadakou <xenia.ragiadakou@amd.com>
+Date: Tue, 29 Aug 2023 10:51:36 +0300
+Subject: [PATCH 08/14] softmmu/memory: enable automatic deallocation of memory
+ regions
+
+When the memory region has a different life-cycle from that of her parent,
+could be automatically released, once has been unparent and once all of her
+references have gone away, via the object's free callback.
+
+However, currently, references to the memory region are held by its owner
+without first incrementing the memory region object's reference count.
+As a result, the automatic deallocation of the object, not taking into
+account those references, results in use-after-free memory corruption.
+
+This patch increases the reference count of an owned memory region object
+on each memory_region_ref() and decreases it on each memory_region_unref().
+
+Signed-off-by: Xenia Ragiadakou <xenia.ragiadakou@amd.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+---
+ softmmu/memory.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/softmmu/memory.c b/softmmu/memory.c
+index 7d9494ce70..15e1699750 100644
+--- a/softmmu/memory.c
++++ b/softmmu/memory.c
+@@ -1800,6 +1800,9 @@ void memory_region_ref(MemoryRegion *mr)
+     /* MMIO callbacks most likely will access data that belongs
+      * to the owner, hence the need to ref/unref the owner whenever
+      * the memory region is in use.
++     * Likewise, the owner keeps references to the memory region,
++     * hence the need to ref/unref the memory region object to prevent
++     * its automatic deallocation while still referenced by its owner.
+      *
+      * The memory region is a child of its owner.  As long as the
+      * owner doesn't call unparent itself on the memory region,
+@@ -1808,6 +1811,7 @@ void memory_region_ref(MemoryRegion *mr)
+      * we do not ref/unref them because it slows down DMA sensibly.
+      */
+     if (mr && mr->owner) {
++        object_ref(OBJECT(mr));
+         object_ref(mr->owner);
+     }
+ }
+@@ -1816,6 +1820,7 @@ void memory_region_unref(MemoryRegion *mr)
+ {
+     if (mr && mr->owner) {
+         object_unref(mr->owner);
++        object_unref(OBJECT(mr));
+     }
+ }
+ 
+-- 
+2.41.0
+

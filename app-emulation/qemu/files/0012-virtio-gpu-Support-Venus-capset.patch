@@ -1,23 +1,22 @@
-From f5121cf0020a32ef7f9811c36d46091e6070f192 Mon Sep 17 00:00:00 2001
+From 9a2f9b73345f497bdeab21716113af53758345d8 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
-Date: Tue, 19 Sep 2023 19:24:13 +0300
-Subject: [PATCH 5/8] virtio-gpu: Support Venus capset
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Mon, 26 Sep 2022 16:24:20 +0200
+Subject: [PATCH 12/14] virtio-gpu: Support Venus capset
 
-Signed-off-by: José Pekkarinen <jose.pekkarinen@foxhound.fi>
+Add support for the Venus capset, which enables Vulkan support through
+the Venus Vulkan driver for virtio-gpu.
+
 Signed-off-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
 ---
- hw/display/virtio-gpu-virgl.c               | 21 +++++++++++++++++----
- include/standard-headers/linux/virtio_gpu.h |  2 ++
- 2 files changed, 19 insertions(+), 4 deletions(-)
+ hw/display/virtio-gpu-virgl.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index e8a90d8b52..21459bc182 100644
+index e3ee17662d..62cd8c4919 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
-@@ -391,6 +391,11 @@ static void virgl_cmd_get_capset_info(VirtIOGPU *g,
+@@ -437,6 +437,11 @@ static void virgl_cmd_get_capset_info(VirtIOGPU *g,
          virgl_renderer_get_cap_set(resp.capset_id,
                                     &resp.capset_max_version,
                                     &resp.capset_max_size);
@@ -25,11 +24,11 @@ index e8a90d8b52..21459bc182 100644
 +        resp.capset_id = VIRTIO_GPU_CAPSET_VENUS;
 +        virgl_renderer_get_cap_set(resp.capset_id,
 +                                   &resp.capset_max_version,
-+				   &resp.capset_max_size);
++                                   &resp.capset_max_size);
      } else {
          resp.capset_max_version = 0;
          resp.capset_max_size = 0;
-@@ -667,10 +672,18 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
+@@ -887,10 +892,18 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
  
  int virtio_gpu_virgl_get_num_capsets(VirtIOGPU *g)
  {
@@ -52,19 +51,6 @@ index e8a90d8b52..21459bc182 100644
 -    return capset2_max_ver ? 2 : 1;
 +    return num_capsets;
  }
-diff --git a/include/standard-headers/linux/virtio_gpu.h b/include/standard-headers/linux/virtio_gpu.h
-index ca90447b67..5a4a843ac1 100644
---- a/include/standard-headers/linux/virtio_gpu.h
-+++ b/include/standard-headers/linux/virtio_gpu.h
-@@ -310,6 +310,8 @@ struct virtio_gpu_cmd_submit {
- 
- #define VIRTIO_GPU_CAPSET_VIRGL 1
- #define VIRTIO_GPU_CAPSET_VIRGL2 2
-+/* 3 is reserved for gfxstream */
-+#define VIRTIO_GPU_CAPSET_VENUS 4
- 
- /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
- struct virtio_gpu_get_capset_info {
 -- 
 2.41.0
 

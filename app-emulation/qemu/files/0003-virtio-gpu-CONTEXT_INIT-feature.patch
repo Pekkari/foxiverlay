@@ -1,0 +1,63 @@
+From 4fe37b505a4975528b3f09c5241fbe7f42a04af9 Mon Sep 17 00:00:00 2001
+From: Antonio Caggiano <antonio.caggiano@collabora.com>
+Date: Thu, 4 May 2023 12:12:43 -0700
+Subject: [PATCH 03/14] virtio-gpu: CONTEXT_INIT feature
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The feature can be enabled when a backend wants it.
+
+Signed-off-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+Signed-off-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Tested-by: Alyssa Ross <hi@alyssa.is>
+Tested-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Tested-by: Huang Rui <ray.huang@amd.com>
+Acked-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Marc-André Lureau <marcandre.lureau@redhat.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Reviewed-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+---
+ hw/display/virtio-gpu-base.c   | 3 +++
+ include/hw/virtio/virtio-gpu.h | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/hw/display/virtio-gpu-base.c b/hw/display/virtio-gpu-base.c
+index ca1fb7b16f..4f2b0ba1f3 100644
+--- a/hw/display/virtio-gpu-base.c
++++ b/hw/display/virtio-gpu-base.c
+@@ -232,6 +232,9 @@ virtio_gpu_base_get_features(VirtIODevice *vdev, uint64_t features,
+     if (virtio_gpu_blob_enabled(g->conf)) {
+         features |= (1 << VIRTIO_GPU_F_RESOURCE_BLOB);
+     }
++    if (virtio_gpu_context_init_enabled(g->conf)) {
++        features |= (1 << VIRTIO_GPU_F_CONTEXT_INIT);
++    }
+ 
+     return features;
+ }
+diff --git a/include/hw/virtio/virtio-gpu.h b/include/hw/virtio/virtio-gpu.h
+index 390c4642b8..8377c365ef 100644
+--- a/include/hw/virtio/virtio-gpu.h
++++ b/include/hw/virtio/virtio-gpu.h
+@@ -93,6 +93,7 @@ enum virtio_gpu_base_conf_flags {
+     VIRTIO_GPU_FLAG_EDID_ENABLED,
+     VIRTIO_GPU_FLAG_DMABUF_ENABLED,
+     VIRTIO_GPU_FLAG_BLOB_ENABLED,
++    VIRTIO_GPU_FLAG_CONTEXT_INIT_ENABLED,
+ };
+ 
+ #define virtio_gpu_virgl_enabled(_cfg) \
+@@ -105,6 +106,8 @@ enum virtio_gpu_base_conf_flags {
+     (_cfg.flags & (1 << VIRTIO_GPU_FLAG_DMABUF_ENABLED))
+ #define virtio_gpu_blob_enabled(_cfg) \
+     (_cfg.flags & (1 << VIRTIO_GPU_FLAG_BLOB_ENABLED))
++#define virtio_gpu_context_init_enabled(_cfg) \
++    (_cfg.flags & (1 << VIRTIO_GPU_FLAG_CONTEXT_INIT_ENABLED))
+ 
+ struct virtio_gpu_base_conf {
+     uint32_t max_outputs;
+-- 
+2.41.0
+
