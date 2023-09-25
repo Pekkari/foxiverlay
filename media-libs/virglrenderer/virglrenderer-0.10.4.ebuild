@@ -41,6 +41,7 @@ src_configure() {
 	emesonargs+=(-Dvideo=true)
 	if use vulkan; then
 		emesonargs+=(-Dvenus-experimental=true)
+		emesonargs+=(-Drender-server=true)
 	fi
 
 	meson_src_configure
