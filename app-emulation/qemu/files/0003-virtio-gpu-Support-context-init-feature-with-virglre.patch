@@ -1,7 +1,7 @@
-From 51f6a36a1a2fc893ef23991aa4dc21d3191afb2a Mon Sep 17 00:00:00 2001
+From b7eb96c89e525f8986dcba1acbb778299b5ee120 Mon Sep 17 00:00:00 2001
 From: Huang Rui <ray.huang@amd.com>
 Date: Sun, 27 Aug 2023 16:00:27 +0800
-Subject: [PATCH 07/14] virtio-gpu: Support context init feature with
+Subject: [PATCH 03/10] virtio-gpu: Support context init feature with
  virglrenderer
 
 Patch "virtio-gpu: CONTEXT_INIT feature" has added the context_init
@@ -17,7 +17,7 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  2 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index 8bb7a2c21f..e9860228e9 100644
+index 9f34d0e661..e6891802a0 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
 @@ -106,8 +106,17 @@ static void virgl_cmd_context_create(VirtIOGPU *g,
@@ -41,10 +41,10 @@ index 8bb7a2c21f..e9860228e9 100644
  
  static void virgl_cmd_context_destroy(VirtIOGPU *g,
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index be16efbd38..6ff2c8e92d 100644
+index b016d3bac8..faccd76d4b 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -1508,6 +1508,10 @@ static Property virtio_gpu_properties[] = {
+@@ -1619,6 +1619,10 @@ static Property virtio_gpu_properties[] = {
      DEFINE_PROP_BIT("blob", VirtIOGPU, parent_obj.conf.flags,
                      VIRTIO_GPU_FLAG_BLOB_ENABLED, false),
      DEFINE_PROP_SIZE("hostmem", VirtIOGPU, parent_obj.conf.hostmem, 0),
@@ -56,5 +56,5 @@ index be16efbd38..6ff2c8e92d 100644
  };
  
 -- 
-2.41.0
+2.43.0
 

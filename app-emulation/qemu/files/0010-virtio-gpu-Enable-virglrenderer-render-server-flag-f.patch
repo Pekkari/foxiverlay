@@ -1,7 +1,7 @@
-From 616ce03c40f35bda02bc3a88b926a687dbfbdfcf Mon Sep 17 00:00:00 2001
+From 7a9a07612c58790f9fc108b4c1343c87ceb29b50 Mon Sep 17 00:00:00 2001
 From: Huang Rui <ray.huang@amd.com>
 Date: Wed, 9 Aug 2023 11:55:06 +0800
-Subject: [PATCH 14/14] virtio-gpu: Enable virglrenderer render server flag for
+Subject: [PATCH 10/10] virtio-gpu: Enable virglrenderer render server flag for
  venus
 
 Venus in virglrenderer has required render server support.
@@ -12,7 +12,7 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index ea6761dda4..ce4cfe7109 100644
+index 1927beca22..f2dcfbe5b5 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
 @@ -874,7 +874,7 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
@@ -25,5 +25,5 @@ index ea6761dda4..ce4cfe7109 100644
  
      ret = virgl_renderer_init(g, flags, &virtio_gpu_3d_cbs);
 -- 
-2.41.0
+2.43.0
 

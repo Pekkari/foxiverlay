@@ -1,7 +1,7 @@
-From 93e1e4269eb9cddf7e969bc2f5529f8254c243e5 Mon Sep 17 00:00:00 2001
+From 589aef50a1c607277b47bb0df637879481384925 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:16 +0200
-Subject: [PATCH 10/14] virtio-gpu: Handle resource blob commands
+Subject: [PATCH 06/10] virtio-gpu: Handle resource blob commands
 
 Support BLOB resources creation, mapping and unmapping by calling the
 new stable virglrenderer 0.10 interface. Only enabled when available and
@@ -19,7 +19,7 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  4 files changed, 211 insertions(+), 1 deletion(-)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index e9860228e9..722f558bd3 100644
+index e6891802a0..6a3ca27f63 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
 @@ -17,6 +17,7 @@
@@ -267,10 +267,10 @@ index e9860228e9..722f558bd3 100644
          cmd->error = VIRTIO_GPU_RESP_ERR_UNSPEC;
          break;
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index 29ab5e8261..2156e85a4d 100644
+index b408d71f8b..7384aded5e 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -1369,10 +1369,12 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
+@@ -1454,10 +1454,12 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
              return;
          }
  
@@ -285,10 +285,10 @@ index 29ab5e8261..2156e85a4d 100644
  
      if (!virtio_gpu_base_device_realize(qdev,
 diff --git a/include/hw/virtio/virtio-gpu.h b/include/hw/virtio/virtio-gpu.h
-index 55973e112f..b9adc28071 100644
+index 584ba2ed73..c284384869 100644
 --- a/include/hw/virtio/virtio-gpu.h
 +++ b/include/hw/virtio/virtio-gpu.h
-@@ -58,6 +58,11 @@ struct virtio_gpu_simple_resource {
+@@ -61,6 +61,11 @@ struct virtio_gpu_simple_resource {
      int dmabuf_fd;
      uint8_t *remapped;
  
@@ -301,10 +301,10 @@ index 55973e112f..b9adc28071 100644
  };
  
 diff --git a/meson.build b/meson.build
-index 64deffb1d1..7feb394334 100644
+index 5d3e57d349..74c8e45686 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1064,6 +1064,10 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
+@@ -1058,6 +1058,10 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
                         cc.has_function('virgl_renderer_context_create_with_flags',
                                         prefix: '#include <virglrenderer.h>',
                                         dependencies: virgl))
@@ -313,8 +313,8 @@ index 64deffb1d1..7feb394334 100644
 +                                       prefix: '#include <virglrenderer.h>',
 +                                       dependencies: virgl))
  endif
- blkio = not_found
- if not get_option('blkio').auto() or have_block
+ rutabaga = not_found
+ if not get_option('rutabaga_gfx').auto() or have_system or have_vhost_user_gpu
 -- 
-2.41.0
+2.43.0
 

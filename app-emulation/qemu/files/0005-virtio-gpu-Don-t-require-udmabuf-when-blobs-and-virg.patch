@@ -1,7 +1,7 @@
-From c634359b8f033b6303d697799ddde699a50d9ab4 Mon Sep 17 00:00:00 2001
+From e81eb7b12d81fdae3f5c8319eb8b72844cb7ea4d Mon Sep 17 00:00:00 2001
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Date: Thu, 29 Sep 2022 20:56:03 +0300
-Subject: [PATCH 09/14] virtio-gpu: Don't require udmabuf when blobs and virgl
+Subject: [PATCH 05/10] virtio-gpu: Don't require udmabuf when blobs and virgl
  are enabled
 
 The udmabuf usage is mandatory when virgl is disabled and blobs feature
@@ -16,23 +16,26 @@ Reviewed-by: Antonio Caggiano <antonio.caggiano@collabora.com>
 Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Signed-off-by: Huang Rui <ray.huang@amd.com>
 ---
- hw/display/virtio-gpu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ hw/display/virtio-gpu.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index 6ff2c8e92d..29ab5e8261 100644
+index faccd76d4b..b408d71f8b 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -1363,7 +1363,8 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
-     VirtIOGPU *g = VIRTIO_GPU(qdev);
- 
-     if (virtio_gpu_blob_enabled(g->parent_obj.conf)) {
--        if (!virtio_gpu_have_udmabuf()) {
-+        if (!virtio_gpu_virgl_enabled(g->parent_obj.conf) &&
-+            !virtio_gpu_have_udmabuf()) {
-             error_setg(errp, "cannot enable blob resources without udmabuf");
+@@ -1448,6 +1448,12 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
              return;
          }
+ 
++        if (!virtio_gpu_virgl_enabled(g->parent_obj.conf) &&
++            !virtio_gpu_have_udmabuf()) {
++            error_setg(errp, "cannot enable blob resources without udmabuf");
++            return;
++        }
++
+         if (virtio_gpu_virgl_enabled(g->parent_obj.conf)) {
+             error_setg(errp, "blobs and virgl are not compatible (yet)");
+             return;
 -- 
-2.41.0
+2.43.0
 

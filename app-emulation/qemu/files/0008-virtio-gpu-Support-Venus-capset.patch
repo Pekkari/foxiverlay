@@ -1,7 +1,7 @@
-From 9a2f9b73345f497bdeab21716113af53758345d8 Mon Sep 17 00:00:00 2001
+From 3f1eea29d052d64a8fad98b386552dec85f9f0f9 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:20 +0200
-Subject: [PATCH 12/14] virtio-gpu: Support Venus capset
+Subject: [PATCH 08/10] virtio-gpu: Support Venus capset
 
 Add support for the Venus capset, which enables Vulkan support through
 the Venus Vulkan driver for virtio-gpu.
@@ -13,7 +13,7 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index e3ee17662d..62cd8c4919 100644
+index 98c6706d6e..3ee1d4d108 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
 @@ -437,6 +437,11 @@ static void virgl_cmd_get_capset_info(VirtIOGPU *g,
@@ -52,5 +52,5 @@ index e3ee17662d..62cd8c4919 100644
 +    return num_capsets;
  }
 -- 
-2.41.0
+2.43.0
 

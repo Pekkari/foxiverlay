@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -8,8 +8,7 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-#QEMU_DOCS_VERSION=$(ver_cut 1-3)
-QEMU_DOCS_VERSION=8.1.0
+QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -26,13 +25,19 @@ if [[ ${PV} == *9999* ]]; then
 	QEMU_DOCS_PREBUILT=0
 
 	EGIT_REPO_URI="https://gitlab.com/qemu-project/qemu.git/"
-	EGIT_SUBMODULES=(
-		tests/fp/berkeley-softfloat-3
-		tests/fp/berkeley-testfloat-3
-		subprojects/keycodemapdb
-	)
+	EGIT_SUBMODULES=()
 	inherit git-r3
 	SRC_URI=""
+	declare -A SUBPROJECTS=(
+		[keycodemapdb]="f5772a62ec52591ff6870b7e8ef32482371f22c6"
+		[berkeley-softfloat-3]="b64af41c3276f97f0e181920400ee056b9c88037"
+		[berkeley-testfloat-3]="40619cbb3bf32872df8c53cc457039229428a263"
+	)
+
+	for proj in "${!SUBPROJECTS[@]}"; do
+		c=${SUBPROJECTS[${proj}]}
+		SRC_URI+=" https://gitlab.com/qemu-project/${proj}/-/archive/${c}/${proj}-${c}.tar.bz2"
+	done
 else
 	MY_P="${PN}-${PV/_rc/-rc}"
 	SRC_URI="https://download.qemu.org/${MY_P}.tar.xz"
@@ -154,7 +159,7 @@ ALL_DEPEND="
 	dev-libs/glib:2[static-libs(+)]
 	sys-libs/zlib[static-libs(+)]
 	python? ( ${PYTHON_DEPS} )
-	systemtap? ( dev-util/systemtap )
+	systemtap? ( dev-debug/systemtap )
 	xattr? ( sys-apps/attr[static-libs(+)] )
 "
 
@@ -274,7 +279,7 @@ PPC_FIRMWARE_DEPEND="
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
-	>=dev-util/meson-0.63.0
+	>=dev-build/meson-0.63.0
 	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
@@ -284,7 +289,7 @@ BDEPEND="
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
 		dev-libs/glib[utils]
-		sys-devel/bc
+		app-alternatives/bc
 	)
 "
 CDEPEND="
@@ -315,20 +320,16 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-	"${FILESDIR}"/0001-Pending-linux-headers-Update-to-kernel-mainline-comm.patch
-	"${FILESDIR}"/0002-virtio-Add-shared-memory-capability.patch
-	"${FILESDIR}"/0003-virtio-gpu-CONTEXT_INIT-feature.patch
-	"${FILESDIR}"/0004-virtio-gpu-hostmem.patch
-	"${FILESDIR}"/0005-virtio-gpu-blob-prep.patch
-	"${FILESDIR}"/0006-virtio-gpu-Configure-context-init-for-virglrenderer.patch
-	"${FILESDIR}"/0007-virtio-gpu-Support-context-init-feature-with-virglre.patch
-	"${FILESDIR}"/0008-softmmu-memory-enable-automatic-deallocation-of-memo.patch
-	"${FILESDIR}"/0009-virtio-gpu-Don-t-require-udmabuf-when-blobs-and-virg.patch
-	"${FILESDIR}"/0010-virtio-gpu-Handle-resource-blob-commands.patch
-	"${FILESDIR}"/0011-virtio-gpu-Resource-UUID.patch
-	"${FILESDIR}"/0012-virtio-gpu-Support-Venus-capset.patch
-	"${FILESDIR}"/0013-virtio-gpu-Initialize-Venus.patch
-	"${FILESDIR}"/0014-virtio-gpu-Enable-virglrenderer-render-server-flag-f.patch
+	"${FILESDIR}"/0001-linux-headers-Update-to-kernel-mainline-commit.patch
+	"${FILESDIR}"/0002-virtio-gpu-Configure-context-init-for-virglrenderer.patch
+	"${FILESDIR}"/0003-virtio-gpu-Support-context-init-feature-with-virglre.patch
+	"${FILESDIR}"/0004-softmmu-memory-enable-automatic-deallocation-of-memo.patch
+	"${FILESDIR}"/0005-virtio-gpu-Don-t-require-udmabuf-when-blobs-and-virg.patch
+	"${FILESDIR}"/0006-virtio-gpu-Handle-resource-blob-commands.patch
+	"${FILESDIR}"/0007-virtio-gpu-Resource-UUID.patch
+	"${FILESDIR}"/0008-virtio-gpu-Support-Venus-capset.patch
+	"${FILESDIR}"/0009-virtio-gpu-Initialize-Venus.patch
+	"${FILESDIR}"/0010-virtio-gpu-Enable-virglrenderer-render-server-flag-f.patch
 )
 
 QA_PREBUILT="
@@ -456,6 +457,23 @@ check_targets() {
 	popd >/dev/null
 }
 
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+		for file in ${A}; do
+			unpack "${file}"
+		done
+		cd "${WORKDIR}" || die
+		for proj in "${!SUBPROJECTS[@]}"; do
+			mv "${proj}-${SUBPROJECTS[${proj}]}" "${S}/subprojects/${proj}" || die
+		done
+		cd "${S}" || die
+		meson subprojects packagefiles --apply || die
+	else
+		default
+	fi
+}
+
 src_prepare() {
 	check_targets IUSE_SOFTMMU_TARGETS softmmu
 	check_targets IUSE_USER_TARGETS linux-user
@@ -470,7 +488,7 @@ src_prepare() {
 	MAKEOPTS+=" V=1"
 
 	# Remove bundled modules
-	rm -r subprojects/dtc roms/*/ || die
+	rm -r roms/*/ || die
 }
 
 ##

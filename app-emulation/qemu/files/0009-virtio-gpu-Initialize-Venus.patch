@@ -1,7 +1,7 @@
-From 2e4880f89189dbcc265c4bbd3d4f2f58599dc124 Mon Sep 17 00:00:00 2001
+From 1665dca5994fc0ddf6b1b8e608d7b4d8071d6fdf Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:21 +0200
-Subject: [PATCH 13/14] virtio-gpu: Initialize Venus
+Subject: [PATCH 09/10] virtio-gpu: Initialize Venus
 
 Request Venus when initializing VirGL.
 
@@ -13,7 +13,7 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  2 files changed, 9 insertions(+)
 
 diff --git a/hw/display/virtio-gpu-virgl.c b/hw/display/virtio-gpu-virgl.c
-index 62cd8c4919..ea6761dda4 100644
+index 3ee1d4d108..1927beca22 100644
 --- a/hw/display/virtio-gpu-virgl.c
 +++ b/hw/display/virtio-gpu-virgl.c
 @@ -873,6 +873,10 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
@@ -28,10 +28,10 @@ index 62cd8c4919..ea6761dda4 100644
      if (ret != 0) {
          error_report("virgl could not be initialized: %d", ret);
 diff --git a/meson.build b/meson.build
-index 7feb394334..201b241154 100644
+index 74c8e45686..792017cebb 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1068,6 +1068,11 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
+@@ -1062,6 +1062,11 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
                         cc.has_function('virgl_renderer_resource_create_blob',
                                         prefix: '#include <virglrenderer.h>',
                                         dependencies: virgl))
@@ -41,8 +41,8 @@ index 7feb394334..201b241154 100644
 +                               dependencies: virgl)
 +  endif
  endif
- blkio = not_found
- if not get_option('blkio').auto() or have_block
+ rutabaga = not_found
+ if not get_option('rutabaga_gfx').auto() or have_system or have_vhost_user_gpu
 -- 
-2.41.0
+2.43.0
 
