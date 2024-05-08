@@ -1,4 +1,4 @@
-From 3f1eea29d052d64a8fad98b386552dec85f9f0f9 Mon Sep 17 00:00:00 2001
+From 600426f22531a26b1353c440a1b0e6a28a0d88f2 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:20 +0200
 Subject: [PATCH 08/10] virtio-gpu: Support Venus capset
@@ -52,5 +52,5 @@ index 98c6706d6e..3ee1d4d108 100644
 +    return num_capsets;
  }
 -- 
-2.43.0
+2.43.2
 

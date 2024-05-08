@@ -1,4 +1,4 @@
-From a49acde43270f69a52b2a50017eec87564c346c5 Mon Sep 17 00:00:00 2001
+From f2e37f1e9a2fb612de3bde75ddcc14084baac1eb Mon Sep 17 00:00:00 2001
 From: Huang Rui <ray.huang@amd.com>
 Date: Sun, 27 Aug 2023 19:36:02 +0800
 Subject: [PATCH 02/10] virtio-gpu: Configure context init for virglrenderer
@@ -12,20 +12,20 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/meson.build b/meson.build
-index 6c77d9687d..5d3e57d349 100644
+index 91a0aa64c6..c74596157f 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1054,6 +1054,10 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
-                                        prefix: '#include <virglrenderer.h>',
-                                        dependencies: virgl))
-   endif
-+  config_host_data.set('HAVE_VIRGL_CONTEXT_INIT',
-+                       cc.has_function('virgl_renderer_context_create_with_flags',
-+                                       prefix: '#include <virglrenderer.h>',
-+                                       dependencies: virgl))
+@@ -2292,6 +2292,10 @@ if virgl.found()
+                                      prefix: '#include <virglrenderer.h>',
+                                      dependencies: virgl))
  endif
- rutabaga = not_found
- if not get_option('rutabaga_gfx').auto() or have_system or have_vhost_user_gpu
++config_host_data.set('HAVE_VIRGL_CONTEXT_INIT',
++                     cc.has_function('virgl_renderer_context_create_with_flags',
++                                     prefix: '#include <virglrenderer.h>',
++                                     dependencies: virgl))
+ config_host_data.set('CONFIG_VIRTFS', have_virtfs)
+ config_host_data.set('CONFIG_VTE', vte.found())
+ config_host_data.set('CONFIG_XKBCOMMON', xkbcommon.found())
 -- 
-2.43.0
+2.43.2
 

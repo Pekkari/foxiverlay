@@ -1,4 +1,4 @@
-From d315719049827ed6c773accce8aedb5d0d3f895c Mon Sep 17 00:00:00 2001
+From ce1a882ae10d9d3d35ae6b6506191b7cbe2c33ff Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:19 +0200
 Subject: [PATCH 07/10] virtio-gpu: Resource UUID
@@ -30,7 +30,7 @@ index 2336a0ca15..54d6894c59 100644
  virtio_gpu_cmd_res_xfer_toh_3d(uint32_t res) "res 0x%x"
  virtio_gpu_cmd_res_xfer_fromh_3d(uint32_t res) "res 0x%x"
 diff --git a/hw/display/virtio-gpu-base.c b/hw/display/virtio-gpu-base.c
-index 37af256219..3e79c73517 100644
+index 4fc7ef8896..079a8888ea 100644
 --- a/hw/display/virtio-gpu-base.c
 +++ b/hw/display/virtio-gpu-base.c
 @@ -236,6 +236,8 @@ virtio_gpu_base_get_features(VirtIODevice *vdev, uint64_t features,
@@ -99,10 +99,10 @@ index 6a3ca27f63..98c6706d6e 100644
          virgl_cmd_get_capset_info(g, cmd);
          break;
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index 7384aded5e..b12a83c441 100644
+index 9595f6468c..b1830731ba 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -958,6 +958,38 @@ virtio_gpu_resource_detach_backing(VirtIOGPU *g,
+@@ -963,6 +963,38 @@ virtio_gpu_resource_detach_backing(VirtIOGPU *g,
      virtio_gpu_cleanup_mapping(g, res);
  }
  
@@ -141,7 +141,7 @@ index 7384aded5e..b12a83c441 100644
  void virtio_gpu_simple_process_cmd(VirtIOGPU *g,
                                     struct virtio_gpu_ctrl_command *cmd)
  {
-@@ -1006,6 +1038,9 @@ void virtio_gpu_simple_process_cmd(VirtIOGPU *g,
+@@ -1011,6 +1043,9 @@ void virtio_gpu_simple_process_cmd(VirtIOGPU *g,
      case VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING:
          virtio_gpu_resource_detach_backing(g, cmd);
          break;
@@ -151,7 +151,7 @@ index 7384aded5e..b12a83c441 100644
      default:
          cmd->error = VIRTIO_GPU_RESP_ERR_UNSPEC;
          break;
-@@ -1200,6 +1235,7 @@ static int virtio_gpu_save(QEMUFile *f, void *opaque, size_t size,
+@@ -1212,6 +1247,7 @@ static int virtio_gpu_save(QEMUFile *f, void *opaque, size_t size,
      VirtIOGPU *g = opaque;
      struct virtio_gpu_simple_resource *res;
      int i;
@@ -159,7 +159,7 @@ index 7384aded5e..b12a83c441 100644
  
      /* in 2d mode we should never find unprocessed commands here */
      assert(QTAILQ_EMPTY(&g->cmdq));
-@@ -1219,9 +1255,17 @@ static int virtio_gpu_save(QEMUFile *f, void *opaque, size_t size,
+@@ -1231,9 +1267,17 @@ static int virtio_gpu_save(QEMUFile *f, void *opaque, size_t size,
          }
          qemu_put_buffer(f, (void *)pixman_image_get_data(res->image),
                          pixman_image_get_stride(res->image) * res->height);
@@ -177,7 +177,7 @@ index 7384aded5e..b12a83c441 100644
      return vmstate_save_state(f, &vmstate_virtio_gpu_scanouts, g, NULL);
  }
  
-@@ -1262,9 +1306,12 @@ static int virtio_gpu_load(QEMUFile *f, void *opaque, size_t size,
+@@ -1274,9 +1318,12 @@ static int virtio_gpu_load(QEMUFile *f, void *opaque, size_t size,
      uint32_t resource_id, pformat;
      void *bits = NULL;
      int i;
@@ -190,7 +190,7 @@ index 7384aded5e..b12a83c441 100644
      resource_id = qemu_get_be32(f);
      while (resource_id != 0) {
          res = virtio_gpu_find_resource(g, resource_id);
-@@ -1323,6 +1370,38 @@ static int virtio_gpu_load(QEMUFile *f, void *opaque, size_t size,
+@@ -1335,6 +1382,38 @@ static int virtio_gpu_load(QEMUFile *f, void *opaque, size_t size,
              return -EINVAL;
          }
  
@@ -229,7 +229,7 @@ index 7384aded5e..b12a83c441 100644
          resource_id = qemu_get_be32(f);
      }
  
-@@ -1480,12 +1559,15 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
+@@ -1507,12 +1586,15 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
      QTAILQ_INIT(&g->reslist);
      QTAILQ_INIT(&g->cmdq);
      QTAILQ_INIT(&g->fenceq);
@@ -245,7 +245,7 @@ index 7384aded5e..b12a83c441 100644
      g_clear_pointer(&g->ctrl_bh, qemu_bh_delete);
      g_clear_pointer(&g->cursor_bh, qemu_bh_delete);
      g_clear_pointer(&g->reset_bh, qemu_bh_delete);
-@@ -1539,6 +1621,8 @@ void virtio_gpu_reset(VirtIODevice *vdev)
+@@ -1579,6 +1661,8 @@ void virtio_gpu_reset(VirtIODevice *vdev)
          g_free(cmd);
      }
  
@@ -255,7 +255,7 @@ index 7384aded5e..b12a83c441 100644
  }
  
 diff --git a/include/hw/virtio/virtio-gpu.h b/include/hw/virtio/virtio-gpu.h
-index c284384869..927e347e50 100644
+index 3e06ce6c15..6b1625a65c 100644
 --- a/include/hw/virtio/virtio-gpu.h
 +++ b/include/hw/virtio/virtio-gpu.h
 @@ -66,6 +66,8 @@ struct virtio_gpu_simple_resource {
@@ -267,7 +267,7 @@ index c284384869..927e347e50 100644
      QTAILQ_ENTRY(virtio_gpu_simple_resource) next;
  };
  
-@@ -214,6 +216,8 @@ struct VirtIOGPU {
+@@ -215,6 +217,8 @@ struct VirtIOGPU {
          QTAILQ_HEAD(, VGPUDMABuf) bufs;
          VGPUDMABuf *primary[VIRTIO_GPU_MAX_SCANOUTS];
      } dmabuf;
@@ -276,7 +276,7 @@ index c284384869..927e347e50 100644
  };
  
  struct VirtIOGPUClass {
-@@ -312,6 +316,8 @@ void virtio_gpu_cleanup_mapping_iov(VirtIOGPU *g,
+@@ -316,6 +320,8 @@ void virtio_gpu_cleanup_mapping_iov(VirtIOGPU *g,
                                      struct iovec *iov, uint32_t count);
  void virtio_gpu_cleanup_mapping(VirtIOGPU *g,
                                  struct virtio_gpu_simple_resource *res);
@@ -286,5 +286,5 @@ index c284384869..927e347e50 100644
  void virtio_gpu_device_realize(DeviceState *qdev, Error **errp);
  void virtio_gpu_reset(VirtIODevice *vdev);
 -- 
-2.43.0
+2.43.2
 

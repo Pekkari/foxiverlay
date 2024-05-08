@@ -1,4 +1,4 @@
-From 9735e651335f964b14b71ce81de6443b0f4c65ee Mon Sep 17 00:00:00 2001
+From 1fca6c715f8162dda638593f85ba15b2b63bb5ab Mon Sep 17 00:00:00 2001
 From: Xenia Ragiadakou <xenia.ragiadakou@amd.com>
 Date: Tue, 29 Aug 2023 10:51:36 +0300
 Subject: [PATCH 04/10] softmmu/memory: enable automatic deallocation of memory
@@ -23,10 +23,10 @@ Signed-off-by: Huang Rui <ray.huang@amd.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/system/memory.c b/system/memory.c
-index 798b6c0a17..701c5306e5 100644
+index a229a79988..f22fb13fcb 100644
 --- a/system/memory.c
 +++ b/system/memory.c
-@@ -1788,6 +1788,9 @@ void memory_region_ref(MemoryRegion *mr)
+@@ -1804,6 +1804,9 @@ void memory_region_ref(MemoryRegion *mr)
      /* MMIO callbacks most likely will access data that belongs
       * to the owner, hence the need to ref/unref the owner whenever
       * the memory region is in use.
@@ -36,7 +36,7 @@ index 798b6c0a17..701c5306e5 100644
       *
       * The memory region is a child of its owner.  As long as the
       * owner doesn't call unparent itself on the memory region,
-@@ -1796,6 +1799,7 @@ void memory_region_ref(MemoryRegion *mr)
+@@ -1812,6 +1815,7 @@ void memory_region_ref(MemoryRegion *mr)
       * we do not ref/unref them because it slows down DMA sensibly.
       */
      if (mr && mr->owner) {
@@ -44,7 +44,7 @@ index 798b6c0a17..701c5306e5 100644
          object_ref(mr->owner);
      }
  }
-@@ -1804,6 +1808,7 @@ void memory_region_unref(MemoryRegion *mr)
+@@ -1820,6 +1824,7 @@ void memory_region_unref(MemoryRegion *mr)
  {
      if (mr && mr->owner) {
          object_unref(mr->owner);
@@ -53,5 +53,5 @@ index 798b6c0a17..701c5306e5 100644
  }
  
 -- 
-2.43.0
+2.43.2
 

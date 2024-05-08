@@ -1,4 +1,4 @@
-From b7eb96c89e525f8986dcba1acbb778299b5ee120 Mon Sep 17 00:00:00 2001
+From e9075659623b1253dcb69a2fc68cf4ff9f3e465c Mon Sep 17 00:00:00 2001
 From: Huang Rui <ray.huang@amd.com>
 Date: Sun, 27 Aug 2023 16:00:27 +0800
 Subject: [PATCH 03/10] virtio-gpu: Support context init feature with
@@ -41,10 +41,10 @@ index 9f34d0e661..e6891802a0 100644
  
  static void virgl_cmd_context_destroy(VirtIOGPU *g,
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index b016d3bac8..faccd76d4b 100644
+index ae831b6b3e..057972214d 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -1619,6 +1619,10 @@ static Property virtio_gpu_properties[] = {
+@@ -1659,6 +1659,10 @@ static Property virtio_gpu_properties[] = {
      DEFINE_PROP_BIT("blob", VirtIOGPU, parent_obj.conf.flags,
                      VIRTIO_GPU_FLAG_BLOB_ENABLED, false),
      DEFINE_PROP_SIZE("hostmem", VirtIOGPU, parent_obj.conf.hostmem, 0),
@@ -56,5 +56,5 @@ index b016d3bac8..faccd76d4b 100644
  };
  
 -- 
-2.43.0
+2.43.2
 

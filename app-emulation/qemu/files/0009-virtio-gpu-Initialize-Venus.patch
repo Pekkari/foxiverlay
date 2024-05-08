@@ -1,4 +1,4 @@
-From 1665dca5994fc0ddf6b1b8e608d7b4d8071d6fdf Mon Sep 17 00:00:00 2001
+From 94bd3d60ec121e63dadc35bdb8e8939176f5e559 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:21 +0200
 Subject: [PATCH 09/10] virtio-gpu: Initialize Venus
@@ -28,21 +28,21 @@ index 3ee1d4d108..1927beca22 100644
      if (ret != 0) {
          error_report("virgl could not be initialized: %d", ret);
 diff --git a/meson.build b/meson.build
-index 74c8e45686..792017cebb 100644
+index ad95599681..ee2b333051 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1062,6 +1062,11 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
-                        cc.has_function('virgl_renderer_resource_create_blob',
-                                        prefix: '#include <virglrenderer.h>',
-                                        dependencies: virgl))
-+  if virgl.version().version_compare('>= 0.9.0') and virgl.version().version_compare('< 1.0.0')
-+    message('Enabling virglrenderer unstable APIs')
-+    virgl = declare_dependency(compile_args: '-DVIRGL_RENDERER_UNSTABLE_APIS',
-+                               dependencies: virgl)
-+  endif
- endif
- rutabaga = not_found
- if not get_option('rutabaga_gfx').auto() or have_system or have_vhost_user_gpu
+@@ -2300,6 +2300,11 @@ config_host_data.set('HAVE_VIRGL_RESOURCE_BLOB',
+                      cc.has_function('virgl_renderer_resource_create_blob',
+                                      prefix: '#include <virglrenderer.h>',
+                                      dependencies: virgl))
++if virgl.version().version_compare('>= 0.9.0') and virgl.version().version_compare('< 1.0.0')
++  message('Enabling virglrenderer unstable APIs')
++  virgl = declare_dependency(compile_args: '-DVIRGL_RENDERER_UNSTABLE_APIS',
++                             dependencies: virgl)
++endif
+ config_host_data.set('CONFIG_VIRTFS', have_virtfs)
+ config_host_data.set('CONFIG_VTE', vte.found())
+ config_host_data.set('CONFIG_XKBCOMMON', xkbcommon.found())
 -- 
-2.43.0
+2.43.2
 

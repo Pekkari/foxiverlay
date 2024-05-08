@@ -1,4 +1,4 @@
-From 589aef50a1c607277b47bb0df637879481384925 Mon Sep 17 00:00:00 2001
+From 8811ae15e05fc52dba98388234817ad1a466b0a8 Mon Sep 17 00:00:00 2001
 From: Antonio Caggiano <antonio.caggiano@collabora.com>
 Date: Mon, 26 Sep 2022 16:24:16 +0200
 Subject: [PATCH 06/10] virtio-gpu: Handle resource blob commands
@@ -267,10 +267,10 @@ index e6891802a0..6a3ca27f63 100644
          cmd->error = VIRTIO_GPU_RESP_ERR_UNSPEC;
          break;
 diff --git a/hw/display/virtio-gpu.c b/hw/display/virtio-gpu.c
-index b408d71f8b..7384aded5e 100644
+index 28d03d1ba5..9595f6468c 100644
 --- a/hw/display/virtio-gpu.c
 +++ b/hw/display/virtio-gpu.c
-@@ -1454,10 +1454,12 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
+@@ -1483,10 +1483,12 @@ void virtio_gpu_device_realize(DeviceState *qdev, Error **errp)
              return;
          }
  
@@ -285,7 +285,7 @@ index b408d71f8b..7384aded5e 100644
  
      if (!virtio_gpu_base_device_realize(qdev,
 diff --git a/include/hw/virtio/virtio-gpu.h b/include/hw/virtio/virtio-gpu.h
-index 584ba2ed73..c284384869 100644
+index ed44cdad6b..3e06ce6c15 100644
 --- a/include/hw/virtio/virtio-gpu.h
 +++ b/include/hw/virtio/virtio-gpu.h
 @@ -61,6 +61,11 @@ struct virtio_gpu_simple_resource {
@@ -301,20 +301,20 @@ index 584ba2ed73..c284384869 100644
  };
  
 diff --git a/meson.build b/meson.build
-index 5d3e57d349..74c8e45686 100644
+index c74596157f..ad95599681 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1058,6 +1058,10 @@ if not get_option('virglrenderer').auto() or have_system or have_vhost_user_gpu
-                        cc.has_function('virgl_renderer_context_create_with_flags',
-                                        prefix: '#include <virglrenderer.h>',
-                                        dependencies: virgl))
-+  config_host_data.set('HAVE_VIRGL_RESOURCE_BLOB',
-+                       cc.has_function('virgl_renderer_resource_create_blob',
-+                                       prefix: '#include <virglrenderer.h>',
-+                                       dependencies: virgl))
- endif
- rutabaga = not_found
- if not get_option('rutabaga_gfx').auto() or have_system or have_vhost_user_gpu
+@@ -2296,6 +2296,10 @@ config_host_data.set('HAVE_VIRGL_CONTEXT_INIT',
+                      cc.has_function('virgl_renderer_context_create_with_flags',
+                                      prefix: '#include <virglrenderer.h>',
+                                      dependencies: virgl))
++config_host_data.set('HAVE_VIRGL_RESOURCE_BLOB',
++                     cc.has_function('virgl_renderer_resource_create_blob',
++                                     prefix: '#include <virglrenderer.h>',
++                                     dependencies: virgl))
+ config_host_data.set('CONFIG_VIRTFS', have_virtfs)
+ config_host_data.set('CONFIG_VTE', vte.found())
+ config_host_data.set('CONFIG_XKBCOMMON', xkbcommon.found())
 -- 
-2.43.0
+2.43.2
 
